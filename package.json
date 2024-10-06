@@ -18,7 +18,7 @@
     "detect package.json scripts to run in shell"
   ],
   "bin": {
-    "rs": "dist/index.js"
+    "rs": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "scripts": {

@@ -10,11 +10,15 @@ export const getPackageJsonScripts = () => {
 };
 
 export const listPackageJsonScripts = () => {
-  const packageJsonScripts = getPackageJsonScripts();
-  const output = Object.keys(packageJsonScripts).map((script) => {
-    return chalk.green(`${script}`) + chalk.gray(': ') + chalk.white(packageJsonScripts[script]);
-  });
-  console.log(output.join('\n'));
+  try {
+    const packageJsonScripts = getPackageJsonScripts();
+    const output = Object.keys(packageJsonScripts).map((script) => {
+      return chalk.green(`${script}`) + chalk.gray(': ') + chalk.white(packageJsonScripts[script]);
+    });
+    console.log(output.join('\n'));
+  } catch (error) {
+    console.error(chalk.red(`Error listing scripts: `) + chalk.white(`No package.json found`));
+  }
 };
 
 const runners = {

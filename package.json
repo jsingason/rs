@@ -1,5 +1,5 @@
 {
-  "name": "rs",
+  "name": "@jsingason/rs",
   "keywords": [
     "rs",
     "run scripts",
@@ -18,7 +18,7 @@
     "detect package.json scripts to run in shell"
   ],
   "bin": {
-    "rs": "./dist/index.js"
+    "rs": "dist/index.js"
   },
   "main": "./dist/index.js",
   "scripts": {
@@ -35,7 +35,9 @@
   "version": "1.0.0",
   "description": "RS is a CLI tool for quickly detecting package.json scripts, and running them.",
   "homepage": "https://jsingason.github.io/rs",
-  "bugs": "https://github.com/jsingason/rs/issues",
+  "bugs": {
+    "url": "https://github.com/jsingason/rs/issues"
+  },
   "author": "Jóhann S. Ingason <jsingason@gmail.com>",
   "license": "MIT",
   "devDependencies": {
@@ -51,5 +53,8 @@
   "dependencies": {
     "chalk": "4.1.2",
     "commander": "^12.1.0"
+  },
+  "directories": {
+    "test": "tests"
   }
 }

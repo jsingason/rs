@@ -27,7 +27,7 @@ You can use RS in two ways: by installing it globally or by using it with npx.
 To install RS globally, use the following command:
 
 ```bash
-npm install -g rs
+npm install -g @jsingason/rs
 ```
 
 ### Using npx
@@ -35,7 +35,7 @@ npm install -g rs
 You can also use RS without installing it globally by using npx:
 
 ```bash
-npx rs <script>
+npx @jsingason/rs <script>
 ```
 
 Replace `<script>` with the name of the script you want to run.

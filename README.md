@@ -63,6 +63,23 @@ rs <script>
 
 Replace `<script>` with the name of the script you want to run.
 
+
+### Global Scripts
+
+RS also supports running global scripts that are not defined in your local `package.json`. 
+This is particularly useful for running scripts that you use across multiple projects.
+
+To run a global script, use the following command:
+
+`rs -a <key> <value>`
+
+
+For example:
+
+`rs -a hello "echo hello world"`
+
+This will add a global script named "hello" that echoes "hello world" when run.
+
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.

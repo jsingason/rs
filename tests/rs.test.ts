@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { detectRunner, getPackageJsonScripts, listPackageJsonScripts } from '../src/lib/rs';
+import { detectRunner, getPackageJsonScripts, removeGlobalScript, addNewGlobalScript } from '../src/lib/rs';
 
 jest.mock('fs');
 jest.mock('path');

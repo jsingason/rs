@@ -77,22 +77,29 @@ This is particularly useful for running scripts that you use across multiple pro
 
 To run a global script, use the following command:
 
+```bash
 `rs -a <key> <value>`
-
+```
 
 For example:
 
+```bash
 `rs -a hello "echo hello world"`
+```
 
 ### Delete Global Scripts
 
 To delete a global script, use the following command:
 
+```bash
 `rs -d <key>`
+```
 
 For example:
 
+```bash
 `rs -d hello`
+```
 
 This will add a global script named "hello" that echoes "hello world" when run.
 

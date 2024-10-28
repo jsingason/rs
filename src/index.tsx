@@ -36,7 +36,7 @@ program.argument('[script]', 'Script to run').action((script: string | undefined
   }
 
   if (program.opts().add) {
-    const [key] = program.opts().add;
+    const key = program.opts().add;
     if (program.args.length < 1) {
       console.warn(chalk.yellow('Please specify a value for the script'));
       return;
@@ -47,13 +47,13 @@ program.argument('[script]', 'Script to run').action((script: string | undefined
   }
 
   if (program.opts().delete) {
-    const [key] = program.opts().delete;
+    const key = program.opts().delete;
     removeGlobalScript(key);
     return;
   }
 
   if (!script) {
-    output('Please specify a script to run or use -l to list available scripts.');
+    listScripts();
     return;
   }
 

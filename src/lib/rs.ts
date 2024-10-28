@@ -25,12 +25,16 @@ export const listScripts = () => {
       return chalk.green(`${script}`) + chalk.gray(': ') + chalk.white(packageJsonScripts[script]);
     });
 
-    output("\nPackage.json:\n", "blue")
+    output("Package.json:\n", "blue")
     output(packageOutput.join('\n'))
   } catch (error) {
     output.error(`No package.json found`);
   }
 
+  if (globalOutput.length === 0) {
+    output.warn('\nNo global scripts found');
+    return;
+  }
   output("\nGlobal scripts:\n", "blue")
   output(globalOutput.join('\n'))
 };

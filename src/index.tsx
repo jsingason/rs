@@ -43,7 +43,7 @@ program.argument('[script]', 'Script to run').action((script: string | undefined
       console.warn(chalk.yellow('Please specify a value for the script'));
       return;
     }
-    const value = program.args[0];
+    const value = program.args.slice(0).join(' ');
     addNewGlobalScript(key, value);
     return;
   }

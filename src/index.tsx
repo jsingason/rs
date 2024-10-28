@@ -11,14 +11,16 @@ import {
 } from './lib/rs';
 import chalk from 'chalk';
 import { output } from './lib/output';
+import { version } from '../package.json';
 
 const program = new Command();
 const description = 'CLI tool for detecting and running package.json scripts';
 
+
 program
   .name('RS')
   .description(description)
-  .version('1.0.0')
+  .version(version)
   .option('-l, --list', 'List all scripts')
   .option('-h, --help', 'Show help')
   .option('-a, --add <key> <value>', 'Add new global script')

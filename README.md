@@ -8,9 +8,11 @@ RS was created to address my frustration with working in multiple projects that 
 
 1. **Package Manager Agnostic**: RS automatically detects whether your project uses npm, yarn, pnpm, or bun, eliminating the need to remember or switch between different commands.
 
-2. **Quick Script Discovery**: Use `-l` to instantly view all scripts, eliminating the need to search through `package.json`.
+2. **Quick Script Discovery**: Use `rs` or `rs -l` to instantly view all scripts, eliminating the need to search through `package.json`.
 
 3. **Simplified Execution**: Run any script with a simple `rs <script-name>` command, without needing to prefix it with `npm run`, `yarn`, or other package manager-specific commands.
+
+4. **Global Scripts**: RS allows you to define and run global scripts that are not defined in your project's `package.json`, making it easy to reuse common scripts across multiple projects.
 
 ## Features
 
@@ -48,6 +50,10 @@ Replace `<script>` with the name of the script you want to run.
 To list all available scripts in your project, use the following command:
 
 ```bash
+rs
+```
+
+```bash
 rs -l
 ```
 
@@ -64,7 +70,7 @@ rs <script>
 Replace `<script>` with the name of the script you want to run.
 
 
-### Global Scripts
+### Add Global Scripts
 
 RS also supports running global scripts that are not defined in your local `package.json`. 
 This is particularly useful for running scripts that you use across multiple projects.
@@ -77,6 +83,16 @@ To run a global script, use the following command:
 For example:
 
 `rs -a hello "echo hello world"`
+
+### Delete Global Scripts
+
+To delete a global script, use the following command:
+
+`rs -d <key>`
+
+For example:
+
+`rs -d hello`
 
 This will add a global script named "hello" that echoes "hello world" when run.
 

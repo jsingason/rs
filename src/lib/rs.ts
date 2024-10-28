@@ -25,8 +25,8 @@ export const listScripts = () => {
       return chalk.green(`${script}`) + chalk.gray(': ') + chalk.white(packageJsonScripts[script]);
     });
 
-    output("Package.json:\n", "blue")
-    output(packageOutput.join('\n'))
+    output('Package.json:\n', 'blue');
+    output(packageOutput.join('\n'));
   } catch (error) {
     output.error(`No package.json found`);
   }
@@ -35,15 +35,15 @@ export const listScripts = () => {
     output.warn('\nNo global scripts found');
     return;
   }
-  output("\nGlobal scripts:\n", "blue")
-  output(globalOutput.join('\n'))
+  output('\nGlobal scripts:\n', 'blue');
+  output(globalOutput.join('\n'));
 };
 
 const runners = {
-  'npm': 'package-lock.json',
-  'yarn': 'yarn.lock',
-  'pnpm': 'pnpm-lock.yaml',
-  'bun': 'bun.lockb'
+  npm: 'package-lock.json',
+  yarn: 'yarn.lock',
+  pnpm: 'pnpm-lock.yaml',
+  bun: 'bun.lockb',
 } as const;
 
 type Runner = keyof typeof runners;
@@ -60,7 +60,7 @@ export const detectRunner = (): Runner | null => {
 export const runPackageScript = (script: string) => {
   const runner = detectRunner();
   const command = `${runner} run ${script}`;
-  output(`Executing: ${command}`, "green");
+  output(`Executing: ${command}`, 'green');
   const childProcess = spawn(command, { stdio: 'inherit', shell: true });
   childProcess.on('error', (error) => {
     output.error(`Error executing script: ${error.message}`);
@@ -70,7 +70,7 @@ export const runPackageScript = (script: string) => {
       output.error(`Script exited with code ${code}`);
     }
   });
-}
+};
 
 export const runGlobalScript = (script: string) => {
   const globalScripts = getGlobalScripts();
@@ -80,19 +80,19 @@ export const runGlobalScript = (script: string) => {
   }
 
   const command = globalScripts[script];
-  output(`Executing global script: ${command}`, "green");
+  output(`Executing global script: ${command}`, 'green');
   const childProcess = spawn(command, { stdio: 'inherit', shell: true });
-  
+
   childProcess.on('error', (error) => {
     output.error(`Error executing global script: ${error.message}`);
   });
-  
+
   childProcess.on('exit', (code) => {
     if (code !== 0) {
       output.error(`Global script exited with code ${code}`);
     }
   });
-}
+};
 
 const getConfigPath = () => {
   const homedir = require('os').homedir();
@@ -105,7 +105,7 @@ const getConfigPath = () => {
   }
 
   return configPath;
-}
+};
 
 const getConfig = (): Config | null => {
   const configPath = getConfigPath();
@@ -116,22 +116,22 @@ const getConfig = (): Config | null => {
   }
 
   return null;
-}
+};
 
 type Config = {
   globalScripts: Record<string, string>;
-}
+};
 
 const writeConfig = (newConfig: Config) => {
   fs.writeFileSync(getConfigPath(), JSON.stringify(newConfig, null, 2), 'utf8');
-}
+};
 
 export const addNewGlobalScript = (key: string, value: string) => {
   let config = getConfig();
 
   if (!config) {
     config = {
-      globalScripts: {}
+      globalScripts: {},
     };
   }
 
@@ -141,12 +141,12 @@ export const addNewGlobalScript = (key: string, value: string) => {
 
   const updatedConfig = getConfig();
   if (updatedConfig && updatedConfig.globalScripts[key] === value) {
-    output(`Global script '${key}' added successfully.`, "green");
-    output(JSON.stringify(updatedConfig.globalScripts, null, 2), "blue");
+    output(`Global script '${key}' added successfully.`, 'green');
+    output(JSON.stringify(updatedConfig.globalScripts, null, 2), 'blue');
   } else {
     output.error('Error: Failed to add to config.');
   }
-}
+};
 
 export const removeGlobalScript = (key: string) => {
   const configPath = getConfigPath();
@@ -159,14 +159,14 @@ export const removeGlobalScript = (key: string) => {
     if (config.globalScripts && config.globalScripts.hasOwnProperty(key)) {
       delete config.globalScripts[key];
       writeConfig(config);
-      output(`Global script '${key}' removed successfully.`, "green");
+      output(`Global script '${key}' removed successfully.`, 'green');
     } else {
-      output(`Global script '${key}' not found.`, "yellow");
+      output(`Global script '${key}' not found.`, 'yellow');
     }
   } else {
     output.warn('No global scripts configuration found.');
   }
-}
+};
 
 export const getGlobalScripts = () => {
   const config = getConfig();
@@ -174,4 +174,4 @@ export const getGlobalScripts = () => {
     return config.globalScripts;
   }
   return {};
-}
+};

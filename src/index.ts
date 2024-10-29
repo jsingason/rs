@@ -20,7 +20,7 @@ const description = 'CLI tool for detecting and running package.json scripts';
 program
   .name('RS')
   .description(description)
-  .version(version)
+  .version(version, '-v, --version')
   .option('-l, --list', 'List all scripts')
   .option('-h, --help', 'Show help')
   .option('-a, --add <key> <value>', 'Add new global script')

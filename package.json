@@ -32,7 +32,7 @@
     "type": "git",
     "url": "git+https://github.com/jsingason/rs.git"
   },
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "RS is a CLI tool for quickly detecting package.json scripts, and running them.",
   "homepage": "https://jsingason.github.io/rs",
   "bugs": {

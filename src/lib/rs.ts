@@ -6,6 +6,11 @@ import { output } from './output';
 
 export const getPackageJsonScripts = () => {
   const packageJsonPath = path.join(process.cwd(), 'package.json');
+
+  if (!fs.existsSync(packageJsonPath)) {
+    return {};
+  }
+
   const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
   const packageJsonObj = JSON.parse(packageJson);
   return packageJsonObj.scripts;

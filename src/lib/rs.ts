@@ -5,7 +5,7 @@ import path from 'path';
 import { output } from './output';
 
 export const getPackageJsonScripts = () => {
-  const packageJsonPath = `${process.cwd()}\\package.json`;
+  const packageJsonPath = path.join(process.cwd(), 'package.json');
   const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
   const packageJsonObj = JSON.parse(packageJson);
   return packageJsonObj.scripts;

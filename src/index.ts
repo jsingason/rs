@@ -8,9 +8,9 @@ import {
   removeGlobalScript,
   runPackageScript,
   runGlobalScript,
+  runRunnerCommand,
 } from './lib/rs';
 import chalk from 'chalk';
-import { output } from './lib/output';
 import { version } from '../package.json';
 
 const program = new Command();
@@ -71,7 +71,11 @@ program.argument('[script]', 'Script to run').action((script: string | undefined
     return;
   }
 
-  output.warn(`Script not found: ${script}`);
+  /*If script is not found in package.json or global scripts, try to run it with the detected runner
+    Example: rs install
+    Output: Executing: npm install / yarn install / pnpm install / bun install
+  */
+  runRunnerCommand(script);
 });
 
 program.parse(process.argv);

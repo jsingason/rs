@@ -99,6 +99,22 @@ export const runGlobalScript = (script: string) => {
   });
 };
 
+export const runRunnerCommand = (script: string) => {
+  const runner = detectRunner();
+  const command = `${runner} ${script}`;
+  output(`Executing command: ${command}`, 'green');
+  const childProcess = spawn(command, { stdio: 'inherit', shell: true });
+  childProcess.on('error', (error) => {
+    output.error(`Error executing ${runner} command: ${error.message}`);
+  });
+
+  childProcess.on('exit', (code) => {
+    if (code !== 0) {
+      output.error(`${runner} command exited with code ${code}`);
+    }
+  });
+}
+
 const getConfigPath = () => {
   const homedir = require('os').homedir();
   const configDir = path.join(homedir, '.rs-runner');

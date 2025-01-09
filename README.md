@@ -101,6 +101,14 @@ For example:
 `rs -d hello`
 ```
 
+### Run any package manager command with rs
+
+You can run any package manager command with rs by using the following command (as long as its not a script defined in the package.json or globally):
+
+```bash
+`rs <command>`
+```
+
 This will add a global script named "hello" that echoes "hello world" when run.
 
 ## License

@@ -1,10 +1,6 @@
 # RS - Run Scripts CLI
 
-## Why RS?
-
-I'm sure there are other tools that do this, but I wanted to make one that is bare bones and easy to use.
-
-RS was created to address my frustration with working in multiple projects that use different package managers and have various scripts defined, and to provide a simple and intuitive way to list and execute npm scripts without having to remember the exact syntax or navigate through your project's configuration.
+RS was created to address my frustration with working in multiple projects that use different package managers and have various scripts defined, and to provide a simple and intuitive way to list and execute npm scripts without having to remember the exact syntax or navigate through a project's configuration.
 
 1. **Package Manager Agnostic**: RS automatically detects whether your project uses npm, yarn, pnpm, or bun, eliminating the need to remember or switch between different commands.
 

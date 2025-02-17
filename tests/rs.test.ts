@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import { detectRunner, getPackageJsonScripts, removeGlobalScript, addNewGlobalScript } from '../src/lib/rs';
+import path from 'path';
 
 jest.mock('fs');
-jest.mock('path');
 
 describe('rs library', () => {
   beforeEach(() => {
@@ -51,20 +51,21 @@ describe('rs library', () => {
     });
   });
 
-  describe('getPackageJsonScripts', () => {
-    it('should return scripts from package.json', () => {
-      const mockPackageJson = {
-        scripts: {
-          test: 'jest',
-          build: 'tsc',
-        },
-      };
-      (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify(mockPackageJson));
+  it('should return scripts from package.json', () => {
+    const mockPackageJson = {
+      scripts: {
+        test: 'jest',
+        build: 'tsc',
+      },
+    };
 
-      const result = getPackageJsonScripts();
+    (fs.existsSync as jest.Mock).mockReturnValue(true);
+    (fs.readFileSync as jest.Mock).mockReturnValue(JSON.stringify(mockPackageJson));
 
-      expect(result).toEqual(mockPackageJson.scripts);
-      expect(fs.readFileSync).toHaveBeenCalledWith(`${process.cwd()}\\package.json`, 'utf8');
-    });
+    const result = getPackageJsonScripts();
+
+    expect(result).toEqual(mockPackageJson.scripts);
+    
+    expect(fs.readFileSync).toHaveBeenCalledWith(path.join(process.cwd(), 'package.json'), 'utf8');
   });
 });

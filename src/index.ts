@@ -16,7 +16,6 @@ import { version } from '../package.json';
 const program = new Command();
 const description = 'CLI tool for detecting and running package.json scripts';
 
-
 program
   .name('RS')
   .description(description)

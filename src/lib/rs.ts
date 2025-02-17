@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import chalk from 'chalk';
 import { spawn } from 'child_process';
 import path from 'path';
-import { output } from './output';
+import { output, runnerColors } from './output';
 
 export const getPackageJsonScripts = () => {
   const packageJsonPath = path.join(process.cwd(), 'package.json');
@@ -30,7 +30,10 @@ export const listScripts = () => {
       return chalk.green(`${script}`) + chalk.gray(': ') + chalk.white(packageJsonScripts[script]);
     });
 
-    output('Package.json:\n', 'blue');
+    const runner = detectRunner();
+
+    const runnerOutput = runner ? runnerColors[runner](runner) : null;
+    output(`Package.json${runnerOutput ? ` (${runnerOutput}):` : ':'}\n`, 'blue');
     output(packageOutput.join('\n'));
   } catch (error) {
     output.error(`No package.json found`);
@@ -113,7 +116,7 @@ export const runRunnerCommand = (script: string) => {
       output.error(`${runner} command exited with code ${code}`);
     }
   });
-}
+};
 
 const getConfigPath = () => {
   const homedir = require('os').homedir();

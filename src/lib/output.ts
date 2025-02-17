@@ -17,3 +17,10 @@ output.error = (value: string) => {
 output.warn = (value: string) => {
   console.warn(chalk.yellow(value));
 };
+
+export const runnerColors = {
+  npm: chalk.redBright,
+  yarn: chalk.cyanBright,
+  pnpm: chalk.yellowBright,
+  bun: chalk.magentaBright,
+};

@@ -40,6 +40,13 @@ describe('rs library', () => {
       const result = detectRunner();
 
       expect(result).toBe('bun');
+
+      // Also test for bun.lock
+      (fs.existsSync as jest.Mock).mockImplementation((file) => file === 'bun.lock');
+      
+      const result2 = detectRunner();
+
+      expect(result2).toBe('bun');
     });
 
     it('should return null if no runner detected', () => {

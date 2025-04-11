@@ -48,17 +48,19 @@ export const listScripts = () => {
 };
 
 const runners = {
-  npm: 'package-lock.json',
-  yarn: 'yarn.lock',
-  pnpm: 'pnpm-lock.yaml',
-  bun: 'bun.lockb',
-} as const;
+  npm: ['package-lock.json'],
+  yarn: ['yarn.lock'],
+  pnpm: ['pnpm-lock.yaml'],
+  bun: ['bun.lockb', 'bun.lock'],
+};
 
 type Runner = keyof typeof runners;
 
+type RunnerMap = [Runner, string[]][];
+
 export const detectRunner = (): Runner | null => {
-  for (const runner of Object.keys(runners) as Runner[]) {
-    if (fs.existsSync(runners[runner])) {
+  for (const [runner, lockFiles] of Object.entries(runners) as RunnerMap) {
+    if (lockFiles.some((lockFile) => fs.existsSync(lockFile))) {
       return runner;
     }
   }

@@ -12,34 +12,42 @@ export const interactiveMode = async () => {
 
   if (Object.keys(packageScripts).length > 0) {
     choices.push(new inquirer.Separator('--- Package Scripts ---'));
-    choices.push(...Object.keys(packageScripts).map(script => ({
-      name: `${script}`,
-      value: { type: 'package', script }
-    })));
+    choices.push(
+      ...Object.keys(packageScripts).map((script) => ({
+        name: `${script}`,
+        value: { type: 'package', script },
+      })),
+    );
   }
 
   if (Object.keys(directoryScripts).length > 0) {
     choices.push(new inquirer.Separator('--- Directory Scripts ---'));
-    choices.push(...Object.keys(directoryScripts).map(script => ({
-      name: `${script}`,
-      value: { type: 'directory', script }
-    })));
+    choices.push(
+      ...Object.keys(directoryScripts).map((script) => ({
+        name: `${script}`,
+        value: { type: 'directory', script },
+      })),
+    );
   }
 
   if (Object.keys(globalScripts).length > 0) {
     choices.push(new inquirer.Separator('--- Global Scripts ---'));
-    choices.push(...Object.keys(globalScripts).map(script => ({
-      name: `${script}`,
-      value: { type: 'global', script }
-    })));
+    choices.push(
+      ...Object.keys(globalScripts).map((script) => ({
+        name: `${script}`,
+        value: { type: 'global', script },
+      })),
+    );
   }
-  const { selection } = await inquirer.prompt([{
-    type: 'list',
-    name: 'selection',
-    message: 'Select a script to run:',
-    choices,
-    loop: false,
-  }]);
+  const { selection } = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'selection',
+      message: 'Select a script to run:',
+      choices,
+      loop: false,
+    },
+  ]);
 
   if (selection.type === 'package') {
     runPackageScript(selection.script);

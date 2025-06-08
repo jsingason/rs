@@ -25,7 +25,7 @@ export const addNewGlobalScript = (key: string, value: string) => {
   if (!config) {
     config = {
       globalScripts: {},
-      directoryScripts: {}
+      directoryScripts: {},
     };
   }
 

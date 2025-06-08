@@ -6,7 +6,9 @@ import { getGlobalScripts, getDirectoryScripts } from './scripts';
 export const runPackageScript = (script: string) => {
   const runner = detectRunner();
   if (!runner) {
-    output.error('No package manager detected. Please ensure you have a lock file (package-lock.json, yarn.lock, etc.)');
+    output.error(
+      'No package manager detected. Please ensure you have a lock file (package-lock.json, yarn.lock, etc.)',
+    );
     return;
   }
   const command = `${runner} run ${script}`;
@@ -69,7 +71,9 @@ export const runDirectoryScript = (script: string) => {
 export const runRunnerCommand = (script: string) => {
   const runner = detectRunner();
   if (!runner) {
-    output.error('No package manager detected. Please ensure you have a lock file (package-lock.json, yarn.lock, etc.)');
+    output.error(
+      'No package manager detected. Please ensure you have a lock file (package-lock.json, yarn.lock, etc.)',
+    );
     return;
   }
   const command = `${runner} ${script}`;

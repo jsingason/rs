@@ -3,7 +3,14 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import { version } from '../package.json';
 import { listScripts } from './lib/display';
-import { addNewDirectoryScript, addNewGlobalScript, getDirectoryScripts, getGlobalScripts, removeDirectoryScript, removeGlobalScript } from './lib/scripts';
+import {
+  addNewDirectoryScript,
+  addNewGlobalScript,
+  getDirectoryScripts,
+  getGlobalScripts,
+  removeDirectoryScript,
+  removeGlobalScript,
+} from './lib/scripts';
 import { interactiveMode } from './lib/interactive';
 import { getPackageJsonScripts } from './lib/pm';
 import { runDirectoryScript, runGlobalScript, runPackageScript, runRunnerCommand } from './lib/run';

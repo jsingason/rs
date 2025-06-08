@@ -17,11 +17,13 @@ const getConfigPath = () => {
 };
 
 const validateConfig = (config: any): config is Config => {
-  return config &&
+  return (
+    config &&
     typeof config === 'object' &&
     config.globalScripts &&
     typeof config.globalScripts === 'object' &&
-    (!config.directoryScripts || typeof config.directoryScripts === 'object');
+    (!config.directoryScripts || typeof config.directoryScripts === 'object')
+  );
 };
 
 export const getConfig = (): Config | null => {

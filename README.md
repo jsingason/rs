@@ -10,10 +10,15 @@ RS was created to address my frustration with working in multiple projects that 
 
 4. **Global Scripts**: RS allows you to define and run global scripts that are not defined in your project's `package.json`, making it easy to reuse common scripts across multiple projects.
 
+5. **Directory Scripts**: RS supports directory-specific scripts that are tied to the current working directory, perfect for projects without a `package.json` or for custom build scripts you don't want to clutter your global scripts with.
+
 ## Features
 
 - Automatically detects the package manager used in your project (npm, yarn, pnpm, or bun)
 - Lists all available scripts from your `package.json`
+- Supports global scripts that work across all projects
+- Supports directory-specific scripts tied to the current working directory
+- Interactive mode for easy script selection
 - Runs scripts with a simple command
 
 ## Installation
@@ -42,18 +47,19 @@ Replace `<script>` with the name of the script you want to run.
 
 ### Listing Scripts
 
-
 To list all available scripts in your project, use the following command:
 
 ```bash
 rs
 ```
 
+or
+
 ```bash
 rs -l
 ```
 
-This will display a list of all scripts defined in your `package.json` file.
+This will display a list of all scripts defined in your `package.json` file, directory scripts for the current path, and global scripts.
 
 ### Running a Script
 
@@ -63,49 +69,122 @@ To run a specific script, use the following command:
 rs <script>
 ```
 
-Replace `<script>` with the name of the script you want to run.
+Replace `<script>` with the name of the script you want to run. RS will check for scripts in this order:
+1. Package.json scripts
+2. Directory scripts (current directory)
+3. Global scripts
+4. Package manager commands
 
+### Interactive Mode
 
-### Add Global Scripts
-
-RS also supports running global scripts that are not defined in your local `package.json`. 
-This is particularly useful for running scripts that you use across multiple projects.
-
-To run a global script, use the following command:
+For an interactive script selection experience, use:
 
 ```bash
-`rs -a <key> <value>`
+rs -i
+```
+
+This will present you with a list of all available scripts organized by type (package, directory, global) that you can select from.
+
+### Global Scripts
+
+RS supports running global scripts that are not defined in your local `package.json`. 
+This is particularly useful for running scripts that you use across multiple projects.
+
+#### Add Global Scripts
+
+To add a global script, use the following command:
+
+```bash
+rs -a <key> <value>
 ```
 
 For example:
 
 ```bash
-`rs -a hello "echo hello world"`
+rs -a hello "echo hello world"
 ```
 
-### Delete Global Scripts
+This will add a global script named "hello" that echoes "hello world" when run.
+
+#### Delete Global Scripts
 
 To delete a global script, use the following command:
 
 ```bash
-`rs -d <key>`
+rs -d <key>
 ```
 
 For example:
 
 ```bash
-`rs -d hello`
+rs -d hello
+```
+
+### Directory Scripts
+
+Directory scripts are perfect for situations where you want to run something specific to the current directory but don't have a `package.json` or don't want to clutter your global scripts.
+
+#### Add Directory Scripts
+
+To add a directory script, use the following command:
+
+```bash
+rs --add-dir <key> <value>
+```
+
+For example:
+
+```bash
+rs --add-dir build "gcc -o main main.c"
+```
+
+This will add a directory script named "build" that compiles a C program, but only for the current directory.
+
+#### Delete Directory Scripts
+
+To delete a directory script, use the following command:
+
+```bash
+rs --delete-dir <key>
+```
+
+For example:
+
+```bash
+rs --delete-dir build
 ```
 
 ### Run any package manager command with rs
 
-You can run any package manager command with rs by using the following command (as long as its not a script defined in the package.json or globally):
+You can run any package manager command with rs by using the following command (as long as it's not a script defined in the package.json, directory scripts, or globally):
 
 ```bash
-`rs <command>`
+rs <command>
 ```
 
-This will add a global script named "hello" that echoes "hello world" when run.
+For example:
+
+```bash
+rs install
+rs
+rs add lodash
+rs dev
+```
+
+If you need to run a package manager command that includes options (e.g., commands with dashes), encapsulate the entire command in quotes:
+
+```bash
+rs "install --save-dev typescript"
+```
+
+## Script Priority
+
+RS checks for scripts in the following order:
+
+1. **Package.json scripts** - Scripts defined in your project's `package.json`
+2. **Directory scripts** - Scripts specific to the current working directory
+3. **Global scripts** - Scripts available across all projects
+4. **Package manager commands** - Direct package manager commands (install, add, etc.)
 
 ## License
 

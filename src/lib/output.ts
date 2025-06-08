@@ -23,4 +23,5 @@ export const runnerColors = {
   yarn: chalk.cyanBright,
   pnpm: chalk.yellowBright,
   bun: chalk.magentaBright,
+  deno: chalk.greenBright,
 };

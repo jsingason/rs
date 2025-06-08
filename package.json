@@ -3,20 +3,18 @@
   "version": "1.4.0",
   "keywords": [
     "rs",
-    "run scripts",
-    "run-scripts",
-    "run-scripts-cli",
-    "run-scripts-command-line-tool",
-    "detect package.json scripts",
-    "detect package.json scripts to run",
-    "detect package.json scripts to execute",
-    "detect package.json scripts to run in cli",
-    "detect package.json scripts to execute in cli",
-    "detect package.json scripts to run in command line",
-    "detect package.json scripts to execute in command line",
-    "detect package.json scripts to run in terminal",
-    "detect package.json scripts to execute in terminal",
-    "detect package.json scripts to run in shell"
+    "cli",
+    "script-runner",
+    "package-manager",
+    "npm",
+    "yarn",
+    "pnpm",
+    "bun",
+    "deno",
+    "global-scripts",
+    "directory-scripts",
+    "command-line-tool",
+    "developer-tools"
   ],
   "bin": {
     "rs": "./dist/index.js"

@@ -20,6 +20,8 @@ RS was created to address my frustration with working in multiple projects that 
 - Supports directory-specific scripts tied to the current working directory
 - Interactive mode for easy script selection
 - Runs scripts with a simple command
+- Verbose mode for troubleshooting (`--verbose`)
+- Config export/import for backup and sync across machines
 
 ## Installation
 
@@ -120,6 +122,20 @@ For example:
 rs -d hello
 ```
 
+### Verbose Mode
+
+Use verbose mode to troubleshoot script detection and execution:
+
+```bash
+rs --verbose test
+```
+
+This displays:
+- Detected package manager
+- Config file location
+- Working directory
+- Script resolution path
+
 ### Directory Scripts
 
 Directory scripts are perfect for situations where you want to run something specific to the current directory but don't have a `package.json` or don't want to clutter your global scripts.
@@ -177,6 +193,50 @@ If you need to run a package manager command that includes options (e.g., comman
 rs "install --save-dev typescript"
 ```
 
+### Config Export/Import
+
+RS stores scripts in a config file at `~/.rsrc`. You can export and import this config for backup or syncing across machines.
+
+#### Export Config
+
+```bash
+rs --export backup.json
+```
+
+#### Import Config
+
+Merge with existing config:
+```bash
+rs --import backup.json
+```
+
+Replace entire config:
+```bash
+rs --import backup.json --replace
+```
+
+When importing, RS will prompt for confirmation if scripts would be overwritten.
+
+## Configuration
+
+RS stores global and directory scripts in `~/.rsrc` (or `.rsrc` in your home directory). The config is a JSON file with the following structure:
+
+```json
+{
+  "scripts": {
+    "hello": "echo hello world"
+  },
+  "directories": {
+    "/path/to/project": {
+      "build": "make all"
+    }
+  }
+}
+```
+
+- `scripts`: Global scripts available everywhere
+- `directories`: Scripts specific to each directory path
+
 ## Script Priority
 
 RS checks for scripts in the following order:
@@ -185,6 +245,47 @@ RS checks for scripts in the following order:
 2. **Directory scripts** - Scripts specific to the current working directory
 3. **Global scripts** - Scripts available across all projects
 4. **Package manager commands** - Direct package manager commands (install, add, etc.)
+
+## Troubleshooting
+
+### Script not found
+
+If RS can't find your script, use verbose mode to debug:
+
+```bash
+rs --verbose <script-name>
+```
+
+This shows where RS is looking and which scripts are available.
+
+### Wrong package manager detected
+
+RS detects package managers by looking for lock files in this order:
+1. `bun.lockb` → bun
+2. `pnpm-lock.yaml` → pnpm
+3. `yarn.lock` → yarn
+4. `package-lock.json` → npm
+5. `deno.json` / `deno.jsonc` → deno
+
+Make sure the appropriate lock file exists in your project root.
+
+### Config file issues
+
+Check your config location and contents:
+
+```bash
+rs --verbose -l
+```
+
+Config is stored at `~/.rsrc`. If it's corrupted, you can export/backup, delete it, and reimport.
+
+### Scripts with special characters
+
+When running commands with flags or special characters, quote the entire command:
+
+```bash
+rs "install --save-dev typescript"
+```
 
 ## License
 

@@ -11,7 +11,11 @@ export const getPackageJsonScripts = () => {
 
   const packageJson = fs.readFileSync(packageJsonPath, 'utf8');
   const packageJsonObj = JSON.parse(packageJson);
-  return packageJsonObj.scripts || {};
+  const scripts = packageJsonObj.scripts;
+  if (!scripts || typeof scripts !== 'object' || Array.isArray(scripts)) {
+    return {};
+  }
+  return scripts;
 };
 
 export const detectRunner = (): Runner | null => {

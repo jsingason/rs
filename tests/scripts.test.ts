@@ -7,6 +7,7 @@ import {
   removeGlobalScript,
   addNewDirectoryScript,
   removeDirectoryScript,
+  validateScript,
 } from '../src/lib/scripts';
 import { Config } from '../src/types';
 
@@ -108,6 +109,7 @@ describe('scripts module', () => {
           globalScripts: { test: 'jest' },
           directoryScripts: {},
         });
+      (config.writeConfig as jest.Mock).mockReturnValue(true);
 
       addNewGlobalScript('test', 'jest');
 
@@ -134,6 +136,7 @@ describe('scripts module', () => {
           globalScripts: { lint: 'eslint .', test: 'jest' },
           directoryScripts: {},
         });
+      (config.writeConfig as jest.Mock).mockReturnValue(true);
 
       addNewGlobalScript('test', 'jest');
 
@@ -155,6 +158,7 @@ describe('scripts module', () => {
           globalScripts: { test: 'jest' },
           directoryScripts: {},
         });
+      (config.writeConfig as jest.Mock).mockReturnValue(true);
 
       addNewGlobalScript('test', 'jest');
 
@@ -167,12 +171,24 @@ describe('scripts module', () => {
       (config.getConfig as jest.Mock)
         .mockReturnValueOnce(null)
         .mockReturnValueOnce(null);
+      (config.writeConfig as jest.Mock).mockReturnValue(true);
 
       addNewGlobalScript('test', 'jest');
 
       expect(output.error).toHaveBeenCalledWith(
-        'Error: Failed to add to config.',
+        'Failed to verify script was saved correctly.',
       );
+    });
+
+    it('should not continue when writeConfig returns false', () => {
+      (config.getConfig as jest.Mock).mockReturnValueOnce(null);
+      (config.writeConfig as jest.Mock).mockReturnValue(false);
+
+      addNewGlobalScript('test', 'jest');
+
+      expect(config.writeConfig).toHaveBeenCalledTimes(1);
+      // getConfig should not be called a second time when write fails
+      expect(config.getConfig).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -184,6 +200,7 @@ describe('scripts module', () => {
       };
 
       (config.getConfig as jest.Mock).mockReturnValue(existingConfig);
+      (config.writeConfig as jest.Mock).mockReturnValue(true);
 
       removeGlobalScript('test');
 
@@ -209,7 +226,7 @@ describe('scripts module', () => {
       expect(config.writeConfig).not.toHaveBeenCalled();
     });
 
-    it('should warn when script does not exist', () => {
+    it('should warn when script does not exist and show available', () => {
       const existingConfig: Config = {
         globalScripts: { lint: 'eslint .' },
         directoryScripts: {},
@@ -219,9 +236,8 @@ describe('scripts module', () => {
 
       removeGlobalScript('nonexistent');
 
-      expect(output).toHaveBeenCalledWith(
-        "Global script 'nonexistent' not found.",
-        'yellow',
+      expect(output.warn).toHaveBeenCalledWith(
+        "Global script 'nonexistent' not found. Available: lint",
       );
       expect(config.writeConfig).not.toHaveBeenCalled();
     });
@@ -237,6 +253,7 @@ describe('scripts module', () => {
             [mockCwd]: { dev: 'vite dev' },
           },
         });
+      (config.writeConfig as jest.Mock).mockReturnValue(true);
 
       addNewDirectoryScript('dev', 'vite dev');
 
@@ -265,6 +282,7 @@ describe('scripts module', () => {
             [mockCwd]: { build: 'vite build', dev: 'vite dev' },
           },
         });
+      (config.writeConfig as jest.Mock).mockReturnValue(true);
 
       addNewDirectoryScript('dev', 'vite dev');
 
@@ -292,6 +310,7 @@ describe('scripts module', () => {
             [mockCwd]: { dev: 'vite dev' },
           },
         });
+      (config.writeConfig as jest.Mock).mockReturnValue(true);
 
       addNewDirectoryScript('dev', 'vite dev');
 
@@ -304,12 +323,23 @@ describe('scripts module', () => {
       (config.getConfig as jest.Mock)
         .mockReturnValueOnce(null)
         .mockReturnValueOnce(null);
+      (config.writeConfig as jest.Mock).mockReturnValue(true);
 
       addNewDirectoryScript('dev', 'vite dev');
 
       expect(output.error).toHaveBeenCalledWith(
-        'Error: Failed to add directory script to config.',
+        'Failed to verify script was saved correctly.',
       );
+    });
+
+    it('should not continue when writeConfig returns false', () => {
+      (config.getConfig as jest.Mock).mockReturnValueOnce(null);
+      (config.writeConfig as jest.Mock).mockReturnValue(false);
+
+      addNewDirectoryScript('dev', 'vite dev');
+
+      expect(config.writeConfig).toHaveBeenCalledTimes(1);
+      expect(config.getConfig).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -323,6 +353,7 @@ describe('scripts module', () => {
       };
 
       (config.getConfig as jest.Mock).mockReturnValue(existingConfig);
+      (config.writeConfig as jest.Mock).mockReturnValue(true);
 
       removeDirectoryScript('dev');
 
@@ -348,6 +379,7 @@ describe('scripts module', () => {
       };
 
       (config.getConfig as jest.Mock).mockReturnValue(existingConfig);
+      (config.writeConfig as jest.Mock).mockReturnValue(true);
 
       removeDirectoryScript('dev');
 
@@ -367,7 +399,7 @@ describe('scripts module', () => {
       );
     });
 
-    it('should warn when script does not exist in current directory', () => {
+    it('should warn when script does not exist and show available', () => {
       const existingConfig: Config = {
         globalScripts: {},
         directoryScripts: {
@@ -379,10 +411,41 @@ describe('scripts module', () => {
 
       removeDirectoryScript('nonexistent');
 
-      expect(output).toHaveBeenCalledWith(
-        "Directory script 'nonexistent' not found in current directory.",
-        'yellow',
+      expect(output.warn).toHaveBeenCalledWith(
+        "Directory script 'nonexistent' not found. Available: build",
       );
+    });
+  });
+
+  describe('validateScript', () => {
+    it('should return valid for normal commands', () => {
+      const result = validateScript('npm test');
+      expect(result.valid).toBe(true);
+      expect(result.warnings).toHaveLength(0);
+    });
+
+    it('should return invalid for empty command', () => {
+      const result = validateScript('');
+      expect(result.valid).toBe(false);
+      expect(result.warnings).toContain('Script command cannot be empty');
+    });
+
+    it('should return invalid for whitespace-only command', () => {
+      const result = validateScript('   ');
+      expect(result.valid).toBe(false);
+      expect(result.warnings).toContain('Script command cannot be empty');
+    });
+
+    it('should warn about dangerous rm -rf /', () => {
+      const result = validateScript('echo test; rm -rf /');
+      expect(result.valid).toBe(true);
+      expect(result.warnings).toContain('Warning: dangerous rm -rf /');
+    });
+
+    it('should allow safe rm commands', () => {
+      const result = validateScript('rm -rf ./node_modules');
+      expect(result.valid).toBe(true);
+      expect(result.warnings).toHaveLength(0);
     });
   });
 });

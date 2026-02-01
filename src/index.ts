@@ -12,8 +12,10 @@ import {
   removeGlobalScript,
 } from './lib/scripts';
 import { interactiveMode } from './lib/interactive';
-import { getPackageJsonScripts } from './lib/pm';
+import { detectRunner, getPackageJsonScripts } from './lib/pm';
 import { runDirectoryScript, runGlobalScript, runPackageScript, runRunnerCommand } from './lib/run';
+import { setVerbose, output } from './lib/output';
+import { getConfigPath } from './lib/config';
 
 const program = new Command();
 const description = 'CLI tool for detecting and running package.json scripts';
@@ -25,12 +27,23 @@ program
   .option('-l, --list', 'List all scripts')
   .option('-h, --help', 'Show help')
   .option('-i, --interactive', 'Run in interactive mode')
+  .option('--verbose', 'Show detailed execution info')
   .option('-a, --add <key> <value>', 'Add new global script')
   .option('-d, --delete [key]', 'Delete global script')
   .option('--add-dir <key> <value>', 'Add new directory script')
   .option('--delete-dir [key]', 'Delete directory script');
 
 program.argument('[script]', 'Script to run').action((script: string | undefined) => {
+  // Enable verbose mode first so all subsequent operations can log
+  if (program.opts().verbose) {
+    setVerbose(true);
+    const runner = detectRunner();
+    const configPath = getConfigPath();
+    output.verbose(`Package manager: ${runner || 'none detected'}`);
+    output.verbose(`Config file: ${configPath}`);
+    output.verbose(`Working directory: ${process.cwd()}`);
+  }
+
   if (program.opts().help) {
     program.outputHelp();
     return;
@@ -44,7 +57,7 @@ program.argument('[script]', 'Script to run').action((script: string | undefined
   if (program.opts().add) {
     const key = program.opts().add;
     if (program.args.length < 1) {
-      console.warn(chalk.yellow('Please specify a value for the script'));
+      output.warn('Please specify a value for the script');
       return;
     }
     const value = program.args.slice(0).join(' ');
@@ -55,7 +68,7 @@ program.argument('[script]', 'Script to run').action((script: string | undefined
   if (program.opts().addDir) {
     const key = program.opts().addDir;
     if (program.args.length < 1) {
-      console.warn(chalk.yellow('Please specify a value for the directory script'));
+      output.warn('Please specify a value for the directory script');
       return;
     }
     const value = program.args.slice(0).join(' ');
@@ -89,20 +102,35 @@ program.argument('[script]', 'Script to run').action((script: string | undefined
   // package.json -> directory -> global -> runner <command>
   const packageJsonScripts = getPackageJsonScripts();
   if (packageJsonScripts[script]) {
+    output.verbose(`Script resolution: package.json`);
     runPackageScript(script);
     return;
   }
 
   const directoryScripts = getDirectoryScripts();
   if (directoryScripts[script]) {
+    output.verbose(`Script resolution: directory scripts`);
     runDirectoryScript(script);
     return;
   }
 
   const globalScripts = getGlobalScripts();
   if (globalScripts[script]) {
+    output.verbose(`Script resolution: global scripts`);
     runGlobalScript(script);
     return;
+  }
+
+  // Script not found in any script source - show helpful error
+  const allScripts = [
+    ...Object.keys(packageJsonScripts),
+    ...Object.keys(directoryScripts),
+    ...Object.keys(globalScripts),
+  ];
+
+  if (allScripts.length > 0) {
+    output.warn(`Script '${script}' not found. Available: ${allScripts.join(', ')}`);
+    output.verbose(`Falling back to runner command`);
   }
 
   runRunnerCommand(script);

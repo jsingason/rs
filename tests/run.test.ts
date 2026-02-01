@@ -78,7 +78,7 @@ describe('run module', () => {
       runPackageScript('test');
 
       expect(output.error).toHaveBeenCalledWith(
-        'No package manager detected. Please ensure you have a lock file (package-lock.json, yarn.lock, etc.)',
+        'No package manager detected. Run "npm init" or create a lock file first.',
       );
       expect(spawn).not.toHaveBeenCalled();
     });
@@ -174,7 +174,7 @@ describe('run module', () => {
       runGlobalScript('nonexistent');
 
       expect(output.warn).toHaveBeenCalledWith(
-        'Global script not found: nonexistent',
+        "Global script 'nonexistent' not found. No global scripts defined.",
       );
       expect(spawn).not.toHaveBeenCalled();
     });
@@ -261,7 +261,7 @@ describe('run module', () => {
       runDirectoryScript('nonexistent');
 
       expect(output.warn).toHaveBeenCalledWith(
-        'Directory script not found: nonexistent',
+        "Directory script 'nonexistent' not found for current directory.",
       );
       expect(spawn).not.toHaveBeenCalled();
     });
@@ -356,7 +356,7 @@ describe('run module', () => {
       runRunnerCommand('install');
 
       expect(output.error).toHaveBeenCalledWith(
-        'No package manager detected. Please ensure you have a lock file (package-lock.json, yarn.lock, etc.)',
+        'No package manager detected. Run "npm init" or create a lock file first.',
       );
       expect(spawn).not.toHaveBeenCalled();
     });

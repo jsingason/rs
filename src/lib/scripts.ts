@@ -1,6 +1,31 @@
 import { output } from './output';
 import { getConfig, writeConfig } from './config';
 
+// Patterns that might indicate issues in scripts
+const SUSPICIOUS_PATTERNS = [
+  { pattern: /;\s*rm\s+-rf\s+\//, message: 'dangerous rm -rf /' },
+  { pattern: />\s*\/dev\/sd[a-z]/, message: 'writes to block device' },
+  { pattern: /\$\([^)]*\).*\$\([^)]*\)/, message: 'nested command substitution (verify intent)' },
+];
+
+export const validateScript = (command: string): { valid: boolean; warnings: string[] } => {
+  const warnings: string[] = [];
+
+  // Check for empty command
+  if (!command || command.trim().length === 0) {
+    return { valid: false, warnings: ['Script command cannot be empty'] };
+  }
+
+  // Check for suspicious patterns
+  for (const { pattern, message } of SUSPICIOUS_PATTERNS) {
+    if (pattern.test(command)) {
+      warnings.push(`Warning: ${message}`);
+    }
+  }
+
+  return { valid: true, warnings };
+};
+
 export const getGlobalScripts = () => {
   const config = getConfig();
   if (config && config.globalScripts) {
@@ -20,6 +45,18 @@ export const getDirectoryScripts = () => {
 };
 
 export const addNewGlobalScript = (key: string, value: string) => {
+  // Validate the script command
+  const validation = validateScript(value);
+  if (!validation.valid) {
+    output.error(validation.warnings[0]);
+    return;
+  }
+
+  // Show warnings but continue
+  for (const warning of validation.warnings) {
+    output.warn(warning);
+  }
+
   let config = getConfig();
 
   if (!config) {
@@ -39,14 +76,16 @@ export const addNewGlobalScript = (key: string, value: string) => {
 
   config.globalScripts[key] = value;
 
-  writeConfig(config);
+  if (!writeConfig(config)) {
+    return;
+  }
 
   const updatedConfig = getConfig();
   if (updatedConfig && updatedConfig.globalScripts[key] === value) {
     output(`Global script '${key}' added successfully.`, 'green');
     output(JSON.stringify(updatedConfig.globalScripts, null, 2), 'blue');
   } else {
-    output.error('Error: Failed to add to config.');
+    output.error('Failed to verify script was saved correctly.');
   }
 };
 
@@ -60,14 +99,32 @@ export const removeGlobalScript = (key: string) => {
 
   if (config.globalScripts && config.globalScripts.hasOwnProperty(key)) {
     delete config.globalScripts[key];
-    writeConfig(config);
-    output(`Global script '${key}' removed successfully.`, 'green');
+    if (writeConfig(config)) {
+      output(`Global script '${key}' removed successfully.`, 'green');
+    }
   } else {
-    output(`Global script '${key}' not found.`, 'yellow');
+    const available = Object.keys(config.globalScripts || {});
+    if (available.length > 0) {
+      output.warn(`Global script '${key}' not found. Available: ${available.join(', ')}`);
+    } else {
+      output.warn(`Global script '${key}' not found. No global scripts defined.`);
+    }
   }
 };
 
 export const addNewDirectoryScript = (key: string, value: string) => {
+  // Validate the script command
+  const validation = validateScript(value);
+  if (!validation.valid) {
+    output.error(validation.warnings[0]);
+    return;
+  }
+
+  // Show warnings but continue
+  for (const warning of validation.warnings) {
+    output.warn(warning);
+  }
+
   let config = getConfig();
   const currentDir = process.cwd();
 
@@ -91,14 +148,17 @@ export const addNewDirectoryScript = (key: string, value: string) => {
   }
 
   config.directoryScripts[currentDir][key] = value;
-  writeConfig(config);
+
+  if (!writeConfig(config)) {
+    return;
+  }
 
   const updatedConfig = getConfig();
   if (updatedConfig && updatedConfig.directoryScripts?.[currentDir]?.[key] === value) {
     output(`Directory script '${key}' added successfully for ${currentDir}`, 'green');
     output(JSON.stringify(updatedConfig.directoryScripts[currentDir], null, 2), 'blue');
   } else {
-    output.error('Error: Failed to add directory script to config.');
+    output.error('Failed to verify script was saved correctly.');
   }
 };
 
@@ -119,9 +179,15 @@ export const removeDirectoryScript = (key: string) => {
       delete config.directoryScripts[currentDir];
     }
 
-    writeConfig(config);
-    output(`Directory script '${key}' removed successfully.`, 'green');
+    if (writeConfig(config)) {
+      output(`Directory script '${key}' removed successfully.`, 'green');
+    }
   } else {
-    output(`Directory script '${key}' not found in current directory.`, 'yellow');
+    const available = Object.keys(config.directoryScripts[currentDir]);
+    if (available.length > 0) {
+      output.warn(`Directory script '${key}' not found. Available: ${available.join(', ')}`);
+    } else {
+      output.warn(`Directory script '${key}' not found in current directory.`);
+    }
   }
 };

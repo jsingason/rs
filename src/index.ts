@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
-import chalk from 'chalk';
 import { version } from '../package.json';
 import { listScripts } from './lib/display';
 import {
@@ -15,10 +14,90 @@ import { interactiveMode } from './lib/interactive';
 import { detectRunner, getPackageJsonScripts } from './lib/pm';
 import { runDirectoryScript, runGlobalScript, runPackageScript, runRunnerCommand } from './lib/run';
 import { setVerbose, output } from './lib/output';
-import { getConfigPath } from './lib/config';
+import { getConfigPath, exportConfig, validateConfig, getImportConflicts, importConfig } from './lib/config';
+import * as fs from 'fs';
+import * as readline from 'readline';
 
 const program = new Command();
 const description = 'CLI tool for detecting and running package.json scripts';
+
+const prompt = (question: string): Promise<string> => {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      rl.close();
+      resolve(answer.trim().toLowerCase());
+    });
+  });
+};
+
+const handleExport = (exportFile: string): void => {
+  const json = exportConfig();
+  if (!json) {
+    output.error('No config to export');
+    process.exit(1);
+  }
+  try {
+    fs.writeFileSync(exportFile, json, 'utf8');
+    output.success(`Config exported to ${exportFile}`);
+  } catch (err: any) {
+    output.error(`Failed to write file: ${err.message}`);
+    process.exit(1);
+  }
+};
+
+const handleImport = async (importFile: string, replace: boolean): Promise<void> => {
+  let content: string;
+  try {
+    content = fs.readFileSync(importFile, 'utf8');
+  } catch (err: any) {
+    output.error(`Failed to read file: ${err.message}`);
+    process.exit(1);
+  }
+
+  let parsed: any;
+  try {
+    parsed = JSON.parse(content);
+  } catch (err: any) {
+    output.error(`Invalid JSON: ${err.message}`);
+    process.exit(1);
+  }
+
+  if (!validateConfig(parsed)) {
+    output.error('Invalid config format');
+    process.exit(1);
+  }
+
+  const conflicts = getImportConflicts(parsed);
+  if (conflicts.length > 0) {
+    console.log('The following scripts will be overwritten:');
+    conflicts.forEach((c) => console.log(`  - ${c}`));
+    const answer = await prompt('Continue? (y/n): ');
+    if (answer !== 'y') {
+      console.log('Import cancelled');
+      return;
+    }
+  }
+
+  if (replace) {
+    const answer = await prompt('Replace ALL config? (y/n): ');
+    if (answer !== 'y') {
+      console.log('Import cancelled');
+      return;
+    }
+  }
+
+  const summary = importConfig(parsed, replace);
+  if (summary) {
+    output.success(summary);
+  } else {
+    output.error('Failed to import config');
+    process.exit(1);
+  }
+};
 
 program
   .name('RS')
@@ -31,9 +110,12 @@ program
   .option('-a, --add <key>', 'Add new global script')
   .option('-d, --delete [key]', 'Delete global script')
   .option('--add-dir <key>', 'Add new directory script')
-  .option('--delete-dir [key]', 'Delete directory script');
+  .option('--delete-dir [key]', 'Delete directory script')
+  .option('--export <file>', 'Export config to JSON file')
+  .option('--import <file>', 'Import config from file')
+  .option('--replace', 'Replace config instead of merge (use with --import)');
 
-program.allowExcessArguments(true).passThroughOptions().argument('[script]', 'Script to run').action((script: string | undefined) => {
+program.allowExcessArguments(true).passThroughOptions().argument('[script]', 'Script to run').action(async (script: string | undefined) => {
   // Enable verbose mode first so all subsequent operations can log
   if (program.opts().verbose) {
     setVerbose(true);
@@ -42,6 +124,16 @@ program.allowExcessArguments(true).passThroughOptions().argument('[script]', 'Sc
     output.verbose(`Package manager: ${runner || 'none detected'}`);
     output.verbose(`Config file: ${configPath}`);
     output.verbose(`Working directory: ${process.cwd()}`);
+  }
+
+  if (program.opts().export) {
+    handleExport(program.opts().export);
+    return;
+  }
+
+  if (program.opts().import) {
+    await handleImport(program.opts().import, !!program.opts().replace);
+    return;
   }
 
   if (program.opts().help) {

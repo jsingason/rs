@@ -26,6 +26,10 @@ output.warn = (value: string) => {
   console.warn(chalk.yellow(value));
 };
 
+output.success = (value: string) => {
+  console.log(chalk.green(value));
+};
+
 output.verbose = (value: string) => {
   if (verboseMode) {
     console.log(chalk.gray(`[verbose] ${value}`));

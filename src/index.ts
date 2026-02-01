@@ -28,12 +28,12 @@ program
   .option('-h, --help', 'Show help')
   .option('-i, --interactive', 'Run in interactive mode')
   .option('--verbose', 'Show detailed execution info')
-  .option('-a, --add <key> <value>', 'Add new global script')
+  .option('-a, --add <key>', 'Add new global script')
   .option('-d, --delete [key]', 'Delete global script')
-  .option('--add-dir <key> <value>', 'Add new directory script')
+  .option('--add-dir <key>', 'Add new directory script')
   .option('--delete-dir [key]', 'Delete directory script');
 
-program.argument('[script]', 'Script to run').action((script: string | undefined) => {
+program.allowExcessArguments(true).passThroughOptions().argument('[script]', 'Script to run').action((script: string | undefined) => {
   // Enable verbose mode first so all subsequent operations can log
   if (program.opts().verbose) {
     setVerbose(true);

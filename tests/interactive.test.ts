@@ -6,13 +6,14 @@ import {
   runGlobalScript,
 } from '../src/lib/run';
 
-// Mock @inquirer/prompts before importing interactive
-const mockSelect = jest.fn();
-jest.mock('@inquirer/prompts', () => ({
-  select: mockSelect,
-  Separator: class Separator {
-    constructor(public text: string) {}
-  },
+// Mock inquirer before importing interactive
+const mockPrompt = jest.fn();
+const MockSeparator = class Separator {
+  constructor(public text: string) {}
+};
+jest.mock('inquirer', () => ({
+  prompt: mockPrompt,
+  Separator: MockSeparator,
 }));
 
 jest.mock('../src/lib/pm');
@@ -38,7 +39,7 @@ describe('interactive module', () => {
       });
       (getGlobalScripts as jest.Mock).mockReturnValue({});
       (getDirectoryScripts as jest.Mock).mockReturnValue({});
-      mockSelect.mockResolvedValue({ type: 'package', script: 'test' });
+      mockPrompt.mockResolvedValue({ selection: { type: 'package', script: 'test' } });
 
       await interactiveMode();
 
@@ -53,9 +54,8 @@ describe('interactive module', () => {
       (getDirectoryScripts as jest.Mock).mockReturnValue({
         dev: 'vite dev',
       });
-      mockSelect.mockResolvedValue({
-        type: 'directory',
-        script: 'dev',
+      mockPrompt.mockResolvedValue({
+        selection: { type: 'directory', script: 'dev' },
       });
 
       await interactiveMode();
@@ -71,7 +71,7 @@ describe('interactive module', () => {
         lint: 'eslint .',
       });
       (getDirectoryScripts as jest.Mock).mockReturnValue({});
-      mockSelect.mockResolvedValue({ type: 'global', script: 'lint' });
+      mockPrompt.mockResolvedValue({ selection: { type: 'global', script: 'lint' } });
 
       await interactiveMode();
 
@@ -90,36 +90,36 @@ describe('interactive module', () => {
       (getDirectoryScripts as jest.Mock).mockReturnValue({
         dev: 'vite',
       });
-      mockSelect.mockResolvedValue({ type: 'package', script: 'test' });
+      mockPrompt.mockResolvedValue({ selection: { type: 'package', script: 'test' } });
 
       await interactiveMode();
 
-      const selectCall = mockSelect.mock.calls[0][0];
-      expect(selectCall.choices.length).toBeGreaterThanOrEqual(6); // 3 scripts + 3 separators
+      const promptCall = mockPrompt.mock.calls[0][0];
+      expect(promptCall[0].choices.length).toBeGreaterThanOrEqual(6); // 3 scripts + 3 separators
     });
 
     it('should set loop to false in select options', async () => {
       (getPackageJsonScripts as jest.Mock).mockReturnValue({ test: 'jest' });
       (getGlobalScripts as jest.Mock).mockReturnValue({});
       (getDirectoryScripts as jest.Mock).mockReturnValue({});
-      mockSelect.mockResolvedValue({ type: 'package', script: 'test' });
+      mockPrompt.mockResolvedValue({ selection: { type: 'package', script: 'test' } });
 
       await interactiveMode();
 
-      const selectCall = mockSelect.mock.calls[0][0];
-      expect(selectCall.loop).toBe(false);
+      const promptCall = mockPrompt.mock.calls[0][0];
+      expect(promptCall[0].loop).toBe(false);
     });
 
     it('should have correct message in select prompt', async () => {
       (getPackageJsonScripts as jest.Mock).mockReturnValue({ test: 'jest' });
       (getGlobalScripts as jest.Mock).mockReturnValue({});
       (getDirectoryScripts as jest.Mock).mockReturnValue({});
-      mockSelect.mockResolvedValue({ type: 'package', script: 'test' });
+      mockPrompt.mockResolvedValue({ selection: { type: 'package', script: 'test' } });
 
       await interactiveMode();
 
-      const selectCall = mockSelect.mock.calls[0][0];
-      expect(selectCall.message).toBe('Select a script to run:');
+      const promptCall = mockPrompt.mock.calls[0][0];
+      expect(promptCall[0].message).toBe('Select a script to run:');
     });
 
     it('should not add separator when script type is empty', async () => {
@@ -128,13 +128,13 @@ describe('interactive module', () => {
         lint: 'eslint .',
       });
       (getDirectoryScripts as jest.Mock).mockReturnValue({});
-      mockSelect.mockResolvedValue({ type: 'global', script: 'lint' });
+      mockPrompt.mockResolvedValue({ selection: { type: 'global', script: 'lint' } });
 
       await interactiveMode();
 
-      const selectCall = mockSelect.mock.calls[0][0];
+      const promptCall = mockPrompt.mock.calls[0][0];
       // Only global separator + 1 script
-      expect(selectCall.choices.length).toBe(2);
+      expect(promptCall[0].choices.length).toBe(2);
     });
 
     it('should handle multiple scripts of same type', async () => {
@@ -146,15 +146,15 @@ describe('interactive module', () => {
       });
       (getGlobalScripts as jest.Mock).mockReturnValue({});
       (getDirectoryScripts as jest.Mock).mockReturnValue({});
-      mockSelect.mockResolvedValue({ type: 'package', script: 'build' });
+      mockPrompt.mockResolvedValue({ selection: { type: 'package', script: 'build' } });
 
       await interactiveMode();
 
       expect(runPackageScript).toHaveBeenCalledWith('build');
 
-      const selectCall = mockSelect.mock.calls[0][0];
+      const promptCall = mockPrompt.mock.calls[0][0];
       // 1 separator + 4 scripts
-      expect(selectCall.choices.length).toBe(5);
+      expect(promptCall[0].choices.length).toBe(5);
     });
   });
 });

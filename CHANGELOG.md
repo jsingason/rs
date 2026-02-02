@@ -2,6 +2,14 @@
 
 All notable changes to RS will be documented in this file.
 
+## [1.5.1] - 2026-02-02
+
+### Fixed
+- Reverting to inquirer v8.2.6 for increased legacy node support
+
+### Changed
+- Reverted from @inquirer/prompts v8 to inquirer v8 for broader compatibility
+
 ## [1.5.0] - 2026-02-01
 
 ### Added
